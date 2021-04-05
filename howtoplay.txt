@@ -1,0 +1,24 @@
+                                                                 
+
+
+
+
+
+                                                             In this game you gotta guess a word to save your man from hanging :)
+
+
+                                                     1.If your word has less than 9 alphabets each wrong answer will complete your hangman.
+
+                                                     2.If your word has more than 9 alphabets every 2 wrong answers will complete your hangman.
+
+                                                     3.Each time you win you will earn 5 scores.
+
+                                                     4.You have HINT in this game which reveals one alphabet but you can use it once in the game and it will reduces 10 scores.
+
+                                                     5.In leaderboard you can see your place between other players.
+                                                     
+                                                     * all of the words contain small alphabets.
+
+
+                                                                                 Wish you enjoy the game :)
+

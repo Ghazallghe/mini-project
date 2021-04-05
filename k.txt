@@ -1,0 +1,191 @@
+import java.io.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.Console;
+
+public class SignUp {
+    ArrayList<Integer> scores = SignUp.scores();
+    static int whichPlayer = 0;
+    public SignUp() throws FileNotFoundException {
+    }
+
+    public static String input() {
+        Scanner sc = new Scanner(System.in);
+        String userOrPass = sc.next();
+        return userOrPass;
+    }
+
+    static boolean checkUsername(String username) throws IOException {
+        File usernameFile = new File("/home/ghazal/Desktop/mini-project/src/username.txt");
+        Scanner scanUsername = new Scanner(usernameFile);
+        while (scanUsername.hasNextLine()) {
+            String usernameInFile = scanUsername.nextLine();
+            if (username.equals(usernameInFile)) {
+                scanUsername.close();
+                return false;
+            }
+        }
+        scanUsername.close();
+        return true;
+    }
+
+    static void username() throws IOException, InterruptedException {
+        File usernameFile = new File("/home/ghazal/Desktop/mini-project/src/username.txt");
+        File passwordFile = new File("/home/ghazal/Desktop/mini-project/src/password.txt");
+        File scoreFile = new File("/home/ghazal/Desktop/mini-project/src/score.txt");
+        MainClass.clearScreen();
+        MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+        System.out.print(Colors.YELLOW_BOLD + "Username: " + Colors.RESET);
+        String usernameInput = input();
+        whichPlayer = whichPlayer(registeredUsernames(),usernameInput);
+        if (checkUsername(usernameInput)) {
+            myFileWriter(usernameFile,usernameInput);
+            myFileWriter(scoreFile,"0");
+            password();
+        } else {
+            MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+            System.out.println(Colors.RED_BOLD_BRIGHT + "This username is already taken please try again!" + Colors.RESET);
+            TimeUnit.SECONDS.sleep(2);
+            MainClass.clearScreen();
+            username();
+        }
+    }
+
+    public static void myFileWriter(File file,String input) throws IOException {
+        FileWriter usernameWriter = new FileWriter(file, true);
+        usernameWriter.write(input);
+        usernameWriter.write('\n');
+        usernameWriter.close();
+    }
+    static boolean validPasswordCheck(String password) {
+        String passwordRegex = "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w])).{6,}";
+        Pattern passwordPattern = Pattern.compile(passwordRegex);
+        Matcher passwordMatcher = passwordPattern.matcher(password);
+        return passwordMatcher.matches();
+    }
+
+    static void password() throws IOException, InterruptedException {
+        Console console = System.console();
+        File passwordFile = new File("/home/ghazal/Desktop/mini-project/src/password.txt");
+        MainClass.clearScreen();
+        MainClass.changeCursor(4,MainClass.getColumns() / 2 - 20);
+        System.out.println(Colors.BLUE_BOLD + "Your password should consist of small and capital letters , numbers and one special character(!,@,#,..) !!" + Colors.RESET);
+        MainClass.changeCursor(6,MainClass.getColumns() / 2 - 10);
+        char[] pass = console.readPassword(Colors.YELLOW_BOLD + "Password: " + Colors.RESET);
+        String passwordInput = "";
+        for (int i = 0; i < pass.length; i++) {
+            passwordInput += pass[i];
+        }
+        if (validPasswordCheck(passwordInput)) {
+           myFileWriter(passwordFile,passwordInput);
+            MainClass.clearScreen();
+            MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+            System.out.println(Colors.GREEN_BOLD_BRIGHT + "Your registration completed successfully :)" + Colors.RESET);
+            TimeUnit.SECONDS.sleep(2);
+            MainClass.clearScreen();
+            MainClass.startGameOrLeaderBoard();
+        } else {
+            MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+            MainClass.clearScreen();
+            System.out.println(Colors.RED_BOLD_BRIGHT + "Invalid password please try again! :(" + Colors.RESET);
+            TimeUnit.SECONDS.sleep(2);
+            MainClass.clearScreen();
+            password();
+        }
+    }
+
+    public static ArrayList<String> registeredUsernames() throws FileNotFoundException {
+        File usernameFile = new File("/home/ghazal/Desktop/mini-project/src/username.txt");
+        Scanner scanUsername = new Scanner(usernameFile);
+        ArrayList<String> usernames = new ArrayList<String>();
+        while (scanUsername.hasNextLine()) {
+            usernames.add(scanUsername.nextLine());
+        }
+        return usernames;
+    }
+    public static void main(String[] args) throws FileNotFoundException {
+        System.out.println(whichPlayer);
+    }
+
+    public static ArrayList<String> registeredPasswords() throws FileNotFoundException {
+        File passwordFile = new File("/home/ghazal/Desktop/mini-project/src/password.txt");
+        Scanner scanPassword = new Scanner(passwordFile);
+        ArrayList<String> passwords = new ArrayList<String>();
+        while (scanPassword.hasNextLine()) {
+            passwords.add(scanPassword.nextLine());
+        }
+        return passwords;
+    }
+    public static ArrayList<Integer> scores() throws FileNotFoundException {
+        File scoreFile = new File("/home/ghazal/Desktop/mini-project/src/score.txt");
+        Scanner scanScore = new Scanner(scoreFile);
+        ArrayList<Integer> scores = new ArrayList<>();
+        while (scanScore.hasNextLine()){
+            String temp = scanScore.nextLine();
+            scores.add(Integer.parseInt(temp));
+        }
+        return scores;
+    }
+    public static int whichPlayer(ArrayList<String> registeredUsername,String input){
+        for (int i = 0; i < registeredUsername.size(); i++) {
+            if (registeredUsername.get(i).equals(input))
+                return i;
+        }
+        return registeredUsername.size();
+    }
+}
+class Login extends SignUp{
+    public Login() throws FileNotFoundException {
+    }
+
+    static void username() throws IOException, InterruptedException {
+        boolean flag = true;
+        ArrayList<String> rUsernames = registeredUsernames();
+        MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+        System.out.print(Colors.YELLOW_BOLD + "Username: " + Colors.RESET);
+        String loginUsername = input();
+        for(int i = 0; i < rUsernames.size();i++){
+            if(rUsernames.get(i).equals(loginUsername)){
+                flag = false;
+                whichPlayer = whichPlayer(rUsernames,loginUsername);
+                if(checkPassword(i)){
+                    MainClass.clearScreen();
+                    MainClass.startGameOrLeaderBoard();
+                    break;
+                }
+                else {
+                    MainClass.clearScreen();
+                    MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+                    System.out.println(Colors.RED_BOLD_BRIGHT + "Incorrect password please try again" + Colors.RESET);
+                    TimeUnit.SECONDS.sleep(2);
+                    MainClass.clearScreen();
+                    username();
+                }
+            }
+        }
+        if(flag) {
+            MainClass.clearScreen();
+            MainClass.changeCursor(5,MainClass.getColumns() / 2 - 10);
+            System.out.println(Colors.RED_BOLD_BRIGHT + "This username isn't signed up yet please try again" + Colors.RESET);
+            TimeUnit.SECONDS.sleep(2);
+            MainClass.clearScreen();
+            MainClass.Registration();
+        }
+    }
+    static boolean checkPassword(int i) throws FileNotFoundException {
+        Console console = System.console();
+        ArrayList<String> rPasswords = registeredPasswords();
+        MainClass.changeCursor(6,MainClass.getColumns() / 2 - 10);
+        char[] pass = console.readPassword(Colors.YELLOW_BOLD + "Password: " + Colors.RESET);
+        String loginPassword = "";
+        for (int j = 0; j < pass.length; j++) {
+            loginPassword += pass[j];
+        }
+        if(rPasswords.get(i).equals(loginPassword))
+            return true;
+        return false;
+    }
+}
